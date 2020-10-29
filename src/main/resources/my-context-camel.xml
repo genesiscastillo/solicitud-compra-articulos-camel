@@ -1,0 +1,29 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xmlns:cxf="http://camel.apache.org/schema/cxf"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+  http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf-spring.xsd">
+
+	<!-- context:annotation-config/ -->
+	<!--context:component-scan base-package="com.baeldung.applicationcontext"/ -->
+	
+	<bean id="procesoUnoProcess" class="cl.genesiscastillo.pubsub.process.ProcesoUnoProcess"/>
+
+	<camelContext xmlns="http://camel.apache.org/schema/spring">
+		<route>
+			<from uri="timer://foo?fixedRate=true&amp;period=500" />
+			<to uri="bean:procesoUnoProcess"/>
+			<log message="${body}"/>
+			<!-- to uri="google-pubsub://sing-in-dev-284714:testTopic"/-->
+		</route>
+		
+		<route>
+			<from uri="google-pubsub://sing-in-dev-284714:testSubscription?concurrentConsumers=1&amp;maxMessagesPerPoll=1&amp;ackMode=NONE"/>
+			<log message="RECIBIENDOOOO ->   ${body}"/>
+			<to uri="mock:out"/>
+		</route>
+	</camelContext>
+</beans>
